@@ -23,7 +23,7 @@ services:
             - "--character-set-server=utf8mb4" # Set the default character set for the database
             - "--collation-server=utf8mb4_unicode_ci" # Set the default collation for the database
         environment:
-            TZ: "UTC" # Set the default time zone for the database
+            # TZ: "UTC" # Set the default time zone for the database
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Set the root password for the database
             MYSQL_DATABASE: database # Create a new database for the application
             MYSQL_USER: ${DB_USER} # Create a new non-root user for the database
@@ -31,6 +31,7 @@ services:
             # MYSQL_RANDOM_ROOT_PASSWORD: "1" # Set a random password for the root user
         networks:
             local-network:
+                ipv4_address: 172.16.238.10 # Assign a static IP address to the container
 
     # Define the phpMyAdmin service
     phpmyadmin:
@@ -41,16 +42,15 @@ services:
             PMA_HOST: db # Set the database host for phpMyAdmin
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Set the root password for the database
         ports:
-            - "8181:443" # Map port 8181 on the host to port 80 on the container
+            - "8181:80" # Map port 8181 on the host to port 80 on the container
         depends_on:
             - db # Depend on the database service
         networks:
             local-network:
+                ipv4_address: 172.16.238.20 # Assign a static IP address to the container
 
     wordpress:
-        build:
-            context: .
-            dockerfile: Dockerfile
+        image: deyleraf/wordpress_php-ext_ssl:latest
         container_name: wp
         restart: always
         ports:
@@ -62,9 +62,10 @@ services:
             WORDPRESS_DB_NAME: database
         volumes:
             - ./wordpress:/var/www/html
-            - ./conf/php:/usr/local/etc/php/
+            - ./conf/php/php.ini:/usr/local/etc/php/php.ini
         networks:
             local-network:
+                ipv4_address: 172.16.238.30 # Assign a static IP address to the container
 
 volumes:
     db: {}
